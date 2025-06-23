@@ -1,4 +1,4 @@
-module github.com/jmy/datadrivet-budgeteer/terraform-provider-budgeteer
+module github.com/knowit-solutions-cocreate/terraform-provider-budgeteer
 
 go 1.21
 

@@ -31,19 +31,19 @@ func New() *schema.Provider {
 }
 
 type apiClient struct {
-	host string
-	port string
+	host   string
+	apiKey string
 }
 
 func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 	host := d.Get("host").(string)
-	port := d.Get("port").(string)
+	apiKey := d.Get("api_key").(string)
 
 	var diags diag.Diagnostics
 
 	client := &apiClient{
-		host: host,
-		port: port,
+		host:   host,
+		apiKey: apiKey,
 	}
 
 	return client, diags
