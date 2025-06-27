@@ -2,6 +2,7 @@ version: 2
 before:
   hooks:
     - go mod tidy
+    - ./scripts/prepare-release.sh {{ .Version }}
 builds:
 - env:
     - CGO_ENABLED=0
@@ -25,12 +26,12 @@ archives:
 - format: zip
   name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
   files:
-    - src: 'terraform-registry-manifest.json'
-      dst: '{{ .ProjectName }}_{{ .Version }}_manifest.json'
-      strip_parent: true
+    - terraform-registry-manifest.json
 checksum:
   name_template: '{{ .ProjectName }}_{{ .Version }}_SHA256SUMS'
   algorithm: sha256
+  extra_files:
+    - glob: terraform-registry-manifest.json
 signs:
   - artifacts: checksum
     args:
@@ -44,7 +45,8 @@ signs:
 release:
   mode: append
   extra_files:
-    - glob: 'terraform-registry-manifest.json'
-    - glob: '{{ .ProjectName }}_{{ .Version }}_manifest.json'
+    - glob: terraform-registry-manifest.json
+    - dst: '{{ .ProjectName }}_{{ .Version }}_manifest.json'
+      src: terraform-registry-manifest.json
 changelog:
   disable: true
