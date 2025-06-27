@@ -32,7 +32,7 @@ jobs:
           
       - name: Prepare manifest
         run: |
-          cp terraform-registry-manifest.json "terraform-provider-budgeteer_${{ steps.semver.outputs.new_tag }}_manifest.json"
+          cp terraform-registry-manifest.json "terraform-registry-manifest.json"
       
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v4
