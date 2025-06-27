@@ -24,10 +24,11 @@ builds:
 archives:
 - format: zip
   name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
+  files:
+    - src: 'terraform-registry-manifest.json'
+      dst: '{{ .ProjectName }}_{{ .Version }}_manifest.json'
+      strip_parent: true
 checksum:
-  extra_files:
-    - glob: 'terraform-registry-manifest.json'
-      name_template: '{{ .ProjectName }}_{{ .Version }}_manifest.json'
   name_template: '{{ .ProjectName }}_{{ .Version }}_SHA256SUMS'
   algorithm: sha256
 signs:
@@ -41,9 +42,9 @@ signs:
       - "--detach-sign"
       - "${artifact}"
 release:
+  mode: append
   extra_files:
     - glob: 'terraform-registry-manifest.json'
-  disable: false
-  mode: append
+    - glob: '{{ .ProjectName }}_{{ .Version }}_manifest.json'
 changelog:
   disable: true
