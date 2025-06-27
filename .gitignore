@@ -65,3 +65,6 @@ key_handler.example
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+private-key.gpg
+public-key.gpg
