@@ -128,11 +128,15 @@ func resourceApiKeyCreate(ctx context.Context, d *schema.ResourceData, m interfa
 	if err := json.NewDecoder(r.Body).Decode(&response); err != nil {
 		return diag.FromErr(err)
 	}
-
-	// Set the ID immediately after creation
+	// Set the ID and key_value immediately after creation
 	d.SetId(fmt.Sprint(int(response["id"].(float64))))
+	if keyValue, ok := response["key"].(string); ok {
+		if err := d.Set("key_value", keyValue); err != nil {
+			return diag.FromErr(err)
+		}
+	}
 
-	// Read the resource to ensure the state is fully populated
+	// Read the resource to ensure all other state is fully populated
 	return resourceApiKeyRead(ctx, d, m)
 }
 
@@ -195,6 +199,38 @@ func resourceApiKeyRead(ctx context.Context, d *schema.ResourceData, m interface
 	if lastUsedAt, ok := foundKey["last_used_at"].(string); ok {
 		if err := d.Set("last_used_at", lastUsedAt); err != nil {
 			return diag.FromErr(err)
+		}
+	}
+
+	// Get the full key information including key_value from /key endpoint
+	url = fmt.Sprintf("%s/key", client.host)
+	req, err = http.NewRequest("GET", url, nil)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", client.apiKey))
+
+	r, err = http.DefaultClient.Do(req)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+	defer r.Body.Close()
+
+	var fullKeys []map[string]interface{}
+	if err := json.NewDecoder(r.Body).Decode(&fullKeys); err != nil {
+		return diag.FromErr(err)
+	}
+
+	// Find the matching key with the sensitive data
+	for _, key := range fullKeys {
+		if fmt.Sprint(int(key["id"].(float64))) == currentID {
+			if keyValue, ok := key["key"].(string); ok {
+				if err := d.Set("key_value", keyValue); err != nil {
+					return diag.FromErr(err)
+				}
+			}
+			break
 		}
 	}
 
